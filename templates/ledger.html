@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">Transporter Ledger</h1>
+
+<!-- ============================= -->
+<!-- TRANSPORTER INFO -->
+<!-- ============================= -->
+
+{% if transporter %}
+
+<div class="bg-white p-6 rounded shadow mb-6 max-w-xl">
+
+    <h2 class="text-lg font-semibold mb-4">Transporter Details</h2>
+
+    <p><strong>Name:</strong> {{ transporter.name }}</p>
+    <p><strong>Phone:</strong> {{ transporter.phone }}</p>
+
+    <p class="mt-2 font-bold text-blue-600">
+        Current Balance: ₹{{ transporter.balance }}
+    </p>
+
+</div>
+
+{% endif %}
+
+
+<!-- ============================= -->
+<!-- LEDGER TABLE -->
+<!-- ============================= -->
+
+<div class="bg-white p-6 rounded shadow">
+
+    <h2 class="text-lg font-semibold mb-4">Ledger Entries</h2>
+
+    <table class="w-full border text-sm">
+
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="p-2 border">Date</th>
+                <th class="p-2 border">Type</th>
+                <th class="p-2 border">Description</th>
+                <th class="p-2 border">Credit (+)</th>
+                <th class="p-2 border">Debit (-)</th>
+                <th class="p-2 border">Balance</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for row in ledger %}
+
+            <tr class="text-center">
+
+                <td class="p-2 border">
+                    {{ row.date }}
+                </td>
+
+                <td class="p-2 border">
+                    {{ row.type }}
+                </td>
+
+                <td class="p-2 border">
+                    {{ row.description }}
+                </td>
+
+                <!-- Credit -->
+                <td class="p-2 border text-green-600 font-bold">
+                    {% if row.amount > 0 %}
+                        ₹{{ row.amount }}
+                    {% endif %}
+                </td>
+
+                <!-- Debit -->
+                <td class="p-2 border text-red-600 font-bold">
+                    {% if row.amount < 0 %}
+                        ₹{{ row.amount }}
+                    {% endif %}
+                </td>
+
+                <!-- Running Balance -->
+                <td class="p-2 border font-bold text-blue-600">
+                    ₹{{ row.balance }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

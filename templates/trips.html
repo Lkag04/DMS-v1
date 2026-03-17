@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">Trips</h1>
+
+<!-- ============================= -->
+<!-- ADD TRIP FORM -->
+<!-- ============================= -->
+
+<div class="bg-white p-6 rounded shadow mb-6 max-w-xl">
+
+    <h2 class="text-lg font-semibold mb-4">Add Trip</h2>
+
+    <form method="post" action="/trips/add" class="space-y-4">
+
+        <!-- Transporter -->
+        <select name="transporter_id" required class="w-full border p-2 rounded">
+            <option value="">Select Transporter</option>
+            {% for t in transporters %}
+            <option value="{{ t.id }}">{{ t.name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Origin -->
+        <input 
+            name="origin"
+            placeholder="Origin"
+            required
+            class="w-full border p-2 rounded"
+        >
+
+        <!-- Destination -->
+        <input 
+            name="destination"
+            placeholder="Destination"
+            required
+            class="w-full border p-2 rounded"
+        >
+
+        <!-- Freight -->
+        <input 
+            name="freight_amount"
+            type="number"
+            placeholder="Freight Amount"
+            required
+            class="w-full border p-2 rounded"
+        >
+
+        <button 
+            type="submit"
+            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+            Add Trip
+        </button>
+
+    </form>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- TRIPS TABLE -->
+<!-- ============================= -->
+
+<div class="bg-white p-6 rounded shadow">
+
+    <h2 class="text-lg font-semibold mb-4">Trip List</h2>
+
+    <table class="w-full border">
+
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="p-2 border">ID</th>
+                <th class="p-2 border">Transporter</th>
+                <th class="p-2 border">Route</th>
+                <th class="p-2 border">Freight</th>
+                <th class="p-2 border">Remaining</th>
+                <th class="p-2 border">Status</th>
+                <th class="p-2 border">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for trip in trips %}
+
+            <tr class="text-center">
+
+                <td class="p-2 border">{{ trip.id }}</td>
+
+                <td class="p-2 border">
+                    {% for t in transporters %}
+                        {% if t.id == trip.transporter_id %}
+                            {{ t.name }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+
+                <td class="p-2 border">
+                    {{ trip.origin }} → {{ trip.destination }}
+                </td>
+
+                <td class="p-2 border">
+                    ₹{{ trip.freight_amount }}
+                </td>
+
+                <td class="p-2 border font-bold text-yellow-600">
+                    ₹{{ trip.remaining_balance }}
+                </td>
+
+                <td class="p-2 border">
+                    {% if trip.status == "open" %}
+                        <span class="text-blue-600">Open</span>
+                    {% else %}
+                        <span class="text-green-600">Settled</span>
+                    {% endif %}
+                </td>
+
+                <td class="p-2 border space-x-2">
+
+                    <!-- Issue Token -->
+                    {% if trip.remaining_balance > 0 %}
+                    <a 
+                        href="/tokens/issue/{{ trip.id }}"
+                        class="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600"
+                    >
+                        Issue Token
+                    </a>
+                    {% endif %}
+
+                    <!-- View -->
+                    <a 
+                        href="/trips/{{ trip.id }}"
+                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                    >
+                        View
+                    </a>
+
+                    <!-- Delete (Admin only) -->
+                    {% if user.role == "admin" %}
+                    <a 
+                        href="/trips/delete/{{ trip.id }}"
+                        class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    >
+                        Delete
+                    </a>
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

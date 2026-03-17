@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+
+<!-- ============================= -->
+<!-- KPI CARDS -->
+<!-- ============================= -->
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+    <!-- Transporters -->
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-gray-500 text-sm">Total Transporters</h2>
+        <p class="text-2xl font-bold">{{ transporters }}</p>
+    </div>
+
+    <!-- Pending Freight -->
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-gray-500 text-sm">Pending Freight</h2>
+        <p class="text-2xl font-bold text-yellow-600">
+            ₹{{ pending }}
+        </p>
+    </div>
+
+    <!-- Diesel Issued -->
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-gray-500 text-sm">Diesel Issued</h2>
+        <p class="text-2xl font-bold text-green-600">
+            ₹{{ diesel }}
+        </p>
+    </div>
+
+    <!-- Trips -->
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-gray-500 text-sm">Total Trips</h2>
+        <p class="text-2xl font-bold">{{ trips }}</p>
+    </div>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- QUICK ACTIONS -->
+<!-- ============================= -->
+
+<div class="mt-8">
+
+    <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+
+    <div class="flex flex-wrap gap-4">
+
+        <a href="/transporters" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Manage Transporters
+        </a>
+
+        <a href="/trips" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            Add / View Trips
+        </a>
+
+        <a href="/tokens/redeem" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+            Redeem Diesel
+        </a>
+
+        <a href="/reports" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">
+            View Reports
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- USER INFO -->
+<!-- ============================= -->
+
+<div class="mt-10 bg-white p-4 rounded shadow">
+
+    <h3 class="font-semibold mb-2">Logged In User</h3>
+
+    <p>
+        <strong>Username:</strong> {{ user.username }}
+    </p>
+
+    <p>
+        <strong>Role:</strong> {{ user.role }}
+    </p>
+
+</div>
+
+{% endblock %}

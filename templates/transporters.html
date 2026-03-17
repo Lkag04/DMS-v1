@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">Transporters</h1>
+
+<!-- ============================= -->
+<!-- ADD TRANSPORTER FORM -->
+<!-- ============================= -->
+
+<div class="bg-white p-6 rounded shadow mb-6 max-w-lg">
+
+    <h2 class="text-lg font-semibold mb-4">Add Transporter</h2>
+
+    <form method="post" action="/transporters/add" class="space-y-4">
+
+        <input 
+            name="name"
+            placeholder="Transporter Name"
+            required
+            class="w-full border p-2 rounded"
+        >
+
+        <input 
+            name="phone"
+            placeholder="Phone Number"
+            class="w-full border p-2 rounded"
+        >
+
+        <input 
+            name="vehicle_number"
+            placeholder="Vehicle Number"
+            class="w-full border p-2 rounded"
+        >
+
+        <button 
+            type="submit"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+            Add Transporter
+        </button>
+
+    </form>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- TRANSPORTER TABLE -->
+<!-- ============================= -->
+
+<div class="bg-white p-6 rounded shadow">
+
+    <h2 class="text-lg font-semibold mb-4">Transporter List</h2>
+
+    <table class="w-full border">
+
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="p-2 border">ID</th>
+                <th class="p-2 border">Name</th>
+                <th class="p-2 border">Phone</th>
+                <th class="p-2 border">Vehicle</th>
+                <th class="p-2 border">Balance</th>
+                <th class="p-2 border">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for t in transporters %}
+
+            <tr class="text-center">
+
+                <td class="p-2 border">{{ t.id }}</td>
+
+                <td class="p-2 border font-medium">
+                    {{ t.name }}
+                </td>
+
+                <td class="p-2 border">{{ t.phone }}</td>
+
+                <td class="p-2 border">{{ t.vehicle_number }}</td>
+
+                <td class="p-2 border">
+                    <span class="font-bold text-blue-600">
+                        ₹{{ t.balance }}
+                    </span>
+                </td>
+
+                <td class="p-2 border space-x-2">
+
+                    <!-- View Ledger -->
+                    <a 
+                        href="/transporters/{{ t.id }}"
+                        class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                    >
+                        View
+                    </a>
+
+                    <!-- Delete (Admin only) -->
+                    {% if user.role == "admin" %}
+                    <a 
+                        href="/transporters/delete/{{ t.id }}"
+                        class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    >
+                        Delete
+                    </a>
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

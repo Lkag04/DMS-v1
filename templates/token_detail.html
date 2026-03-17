@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">🎫 Token Details</h2>
+            <small class="text-muted">View and verify diesel token</small>
+        </div>
+
+        <a href="/dashboard" class="btn btn-outline-secondary">
+            ← Back
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- LEFT: TOKEN INFO -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-semibold mb-3">Token Information</h5>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted">Token ID</small>
+                            <div class="fw-bold">#{{ token.id }}</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted">Trip ID</small>
+                            <div class="fw-semibold">#{{ token.trip_id }}</div>
+                        </div>
+
+                        <!-- TOKEN CODE (HIGHLIGHTED) -->
+                        <div class="col-12 mb-3">
+                            <small class="text-muted">Token Code</small>
+                            <div class="bg-light rounded p-3 d-flex justify-content-between align-items-center">
+
+                                <code class="fw-bold text-primary">
+                                    {{ token.token_uuid }}
+                                </code>
+
+                                <button class="btn btn-sm btn-outline-primary"
+                                        onclick="copyToken()">
+                                    Copy
+                                </button>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted">Status</small>
+                            <div>
+                                {% if token.status == "redeemed" %}
+                                    <span class="badge bg-success">Redeemed</span>
+                                {% elif token.status == "issued" %}
+                                    <span class="badge bg-warning text-dark">Issued</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ token.status }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted">Created At</small>
+                            <div>{{ token.created_at }}</div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="card shadow-sm border-0 rounded-4 mt-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-semibold mb-3">Actions</h5>
+
+                    <div class="d-flex gap-2 flex-wrap">
+
+                        {% if token.status == "issued" %}
+                        <a href="/tokens/redeem/{{ token.id }}" 
+                           class="btn btn-success">
+                            ✔ Redeem Token
+                        </a>
+                        {% endif %}
+
+                        <a href="/trips/{{ token.trip_id }}" 
+                           class="btn btn-outline-dark">
+                            🚚 View Trip
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: QUICK INFO -->
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4 text-center">
+
+                    <h6 class="fw-semibold mb-3">Quick Status</h6>
+
+                    {% if token.status == "redeemed" %}
+                        <div class="display-6 text-success">✔</div>
+                        <p class="fw-semibold">Already Redeemed</p>
+                    {% else %}
+                        <div class="display-6 text-warning">⏳</div>
+                        <p class="fw-semibold">Pending Redemption</p>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- HELP CARD -->
+            <div class="card shadow-sm border-0 rounded-4 mt-4">
+                <div class="card-body text-center p-4">
+
+                    <h6 class="fw-semibold">Need Help?</h6>
+                    <p class="text-muted small">
+                        Contact admin if token is not working.
+                    </p>
+
+                    <button class="btn btn-outline-primary btn-sm">
+                        📞 Contact Support
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- COPY SCRIPT -->
+<script>
+function copyToken() {
+    const text = "{{ token.token_uuid }}";
+    navigator.clipboard.writeText(text);
+    alert("Token copied!");
+}
+</script>
+
+{% endblock %}
