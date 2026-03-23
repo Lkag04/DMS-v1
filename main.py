@@ -23,6 +23,7 @@ from routers import (
     trip_router,
     token_router,
     report_router,
+    settings_router,
 )
 
 from config import SECRET_KEY
@@ -113,6 +114,7 @@ app.include_router(transporter_router.router)
 app.include_router(trip_router.router)
 app.include_router(token_router.router)
 app.include_router(report_router.router)
+app.include_router(settings_router.router)
 
 
 # ================================

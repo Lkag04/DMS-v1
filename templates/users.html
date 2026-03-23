@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1>User Management</h1>
+        <span class="text-muted">Administrate roles and access to the ERP platform</span>
+    </div>
+</div>
+
+<div class="grid grid-cols-2 gap-6">
+
+    <!-- Add User Form -->
+    <div class="card" style="border-top: 3px solid var(--primary);">
+        <h2 class="mb-4">Create System Entity</h2>
+        <form method="post" action="/users/add">
+            <div class="form-group mb-4">
+                <label class="form-label text-muted mb-2 block">Authorized Username</label>
+                <input name="username" placeholder="e.g. jdoe_ops" required class="form-input">
+            </div>
+            <div class="form-group mb-4">
+                <label class="form-label text-muted mb-2 block">Secure Email (2FA)</label>
+                <input name="email" type="email" placeholder="e.g. name@company.com" required class="form-input">
+            </div>
+            <div class="form-group mb-4">
+                <label class="form-label text-muted mb-2 block">Initial Token Password</label>
+                <input name="password" type="password" placeholder="••••••••••••" required class="form-input">
+            </div>
+            <div class="form-group mb-6">
+                <label class="form-label text-muted mb-2 block">Assigned Clearance Role</label>
+                <select name="role" required class="form-input" style="cursor: pointer;">
+                    <option value="" disabled selected style="color: grey;">Select Architectural Role</option>
+                    <option value="factory_ops" style="color: black;">Factory Operations</option>
+                    <option value="factory_employee" style="color: black;">Factory Employee</option>
+                    <option value="pump_ops" style="color: black;">Pump Operations</option>
+                    <option value="pump_salesman" style="color: black;">Pump Salesman</option>
+                    <option value="admin" style="color: black;">Admin</option>
+                    <option value="master_admin" style="color: black;">Master Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Provision Authority Matrix</button>
+        </form>
+    </div>
+
+    <!-- System Users List -->
+    <div class="card" style="border-top: 3px solid #bc8cff;">
+        <h2 class="mb-4">Active Deployments</h2>
+        <div class="table-container">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th class="text-left"
+                            style="padding-bottom: 0.8rem; border-bottom: 1px solid var(--panel-border);">Username</th>
+                        <th class="text-left"
+                            style="padding-bottom: 0.8rem; border-bottom: 1px solid var(--panel-border);">Assigned
+                            Clearance</th>
+                        <th class="text-right"
+                            style="padding-bottom: 0.8rem; border-bottom: 1px solid var(--panel-border);">Operations
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sys_user in users %}
+                    <tr>
+                        <td style="font-weight: 600; padding: 1rem 0;">{{ sys_user.username }}</td>
+                        <td style="padding: 1rem 0;">
+                            {% if sys_user.role == "master_admin" %}
+                            <span class="badge badge-orange"
+                                style="background:#ff980020; color:#ff9800; border:1px solid #ff980040;">Master
+                                Admin</span>
+                            {% elif sys_user.role == "admin" %}
+                            <span class="badge badge-orange">Admin</span>
+                            {% elif "factory" in sys_user.role %}
+                            <span class="badge badge-blue">{{ sys_user.role | replace('_', ' ') | title }}</span>
+                            {% elif "pump" in sys_user.role %}
+                            <span class="badge badge-green">{{ sys_user.role | replace('_', ' ') | title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-right" style="padding: 1rem 0;">
+                            {% if sys_user.username != "admin" %}
+                            <a href="/users/delete/{{ sys_user.id }}" class="btn btn-danger"
+                                style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Revoke</a>
+                            {% else %}
+                            <span class="text-muted" style="font-size: 0.8rem;">Protected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

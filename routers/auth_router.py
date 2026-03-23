@@ -150,6 +150,15 @@ def create_admin(db: Session = Depends(get_db)):
 # USER MANAGEMENT (ADMIN)
 # ================================
 
+@router.get("/users")
+def view_users(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["ADMIN"]]))
+):
+    users = db.query(User).all()
+    return templates.TemplateResponse("users.html", {"request": request, "user": user, "users": users})
+
 
 @router.post("/users/add")
 def add_user(
@@ -162,13 +171,13 @@ def add_user(
 ):
     existing = db.query(User).filter(User.username == username).first()
     if existing:
-        return RedirectResponse("/?tab=tab-users", status_code=302)
+        return RedirectResponse("/users", status_code=302)
 
     new_user = User(username=username, email=email, password=hash_password(password), role=role)
     db.add(new_user)
     db.commit()
 
-    return RedirectResponse("/?tab=tab-users", status_code=302)
+    return RedirectResponse("/users", status_code=302)
 
 
 @router.get("/users/delete/{user_id}")
@@ -182,7 +191,7 @@ def delete_user(
         db.delete(target_user)
         db.commit()
 
-    return RedirectResponse("/?tab=tab-users", status_code=302)
+    return RedirectResponse("/users", status_code=302)
 
 # ================================
 # FORGOT PASSWORD FLOW

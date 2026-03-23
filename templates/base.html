@@ -14,50 +14,84 @@
 <body>
 
   <!-- ============================= -->
-  <!-- NAVBAR -->
+  <!-- APP LAYOUT -->
   <!-- ============================= -->
-  <nav class="navbar">
-    <div class="nav-links">
-      <a href="/" class="nav-brand">Diesel ERP</a>
-      <a href="/">Dashboard</a>
-      <a href="/transporters">Transporters</a>
-      <a href="/trips">Trips</a>
-      <a href="/tokens/redeem">Redeem</a>
-      <a href="/reports">Reports</a>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="nav-brand">Diesel ERP</a>
+      </div>
+
+      <div class="sidebar-links">
+
+        <div class="sidebar-heading mt-2">Factory Operations</div>
+        <a href="/">Dashboard</a>
+        <a href="/transporters">Transporters</a>
+        <a href="/trips">Trips</a>
+        <a href="/reports">Reports</a>
+
+        <div class="sidebar-heading">Petrol Pump Flow</div>
+        <a href="/tokens/redeem">Redeem Tokens</a>
+        <a href="/overdrafts">Review Overdrafts</a>
+
+        {% if user and (user.role == 'master_admin' or user.role == 'admin') %}
+        <div class="sidebar-heading">Administration</div>
+        <a href="/users">User Management</a>
+        <a href="/settings" style="color: #bc8cff;">System Settings</a>
+        {% endif %}
+
+      </div>
+
+      <div class="sidebar-footer flex flex-col gap-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-muted" style="font-size: 0.9rem;">Interface Dark Mode</span>
+          <button id="theme-toggle" class="btn btn-secondary"
+            style="border-radius: 50%; padding: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
+            title="Toggle Light/Dark Theme">
+            <span id="theme-icon"></span>
+          </button>
+        </div>
+
+        {% if user %}
+        <div class="text-center"
+          style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: var(--radius); margin-bottom: 0.5rem;">
+          <strong style="display: block; color: #fff;">{{ user.username }}</strong>
+          <span class="text-muted" style="font-size: 0.8rem;">{{ user.role }}</span>
+        </div>
+        <a href="/logout" class="btn btn-danger w-full" style="justify-content: center;">Logout</a>
+        {% else %}
+        <a href="/login" class="btn btn-primary w-full" style="justify-content: center;">Login</a>
+        {% endif %}
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="main-wrapper">
+      <main class="container page-transition">
+        {% block content %}{% endblock %}
+      </main>
     </div>
 
-    <!-- Right Side -->
-    <div class="flex items-center gap-4">
-      <!-- Theme Toggle -->
-      <button id="theme-toggle" class="btn btn-secondary"
-        style="border-radius: 50%; padding: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
-        title="Toggle Light/Dark Theme">
-        <span id="theme-icon"></span>
-      </button>
-
-      {% if user %}
-      <span class="text-muted">
-        {{ user.username }} ({{ user.role }})
-      </span>
-      <a href="/logout" class="btn btn-danger">
-        Logout
-      </a>
-      {% else %}
-      <a href="/login" class="btn btn-primary">
-        Login
-      </a>
-      {% endif %}
-    </div>
-  </nav>
-
-  <!-- ============================= -->
-  <!-- MAIN CONTENT -->
-  <!-- ============================= -->
-  <main class="container page-transition">
-    {% block content %}{% endblock %}
-  </main>
+  </div>
 
   <script>
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+    const sidebar = document.getElementById('main-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+    }
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', toggleSidebar);
+    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', toggleSidebar);
+    if (overlay) overlay.addEventListener('click', toggleSidebar);
+
+    // Theme logic
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
     const html = document.documentElement;
