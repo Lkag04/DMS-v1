@@ -2,96 +2,58 @@
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Redeem Diesel Token</h1>
-
-<!-- ============================= -->
-<!-- SUCCESS / ERROR MESSAGE -->
-<!-- ============================= -->
+<h1 class="mb-6">Redeem Diesel Token</h1>
 
 {% if message %}
-<div class="bg-green-100 text-green-800 p-4 rounded mb-6 max-w-xl">
-    {{ message }}
+<div class="card bg-success mb-6" style="background: rgba(35, 134, 54, 0.2); border-color: rgba(35, 134, 54, 0.4);">
+    <strong class="text-success">{{ message }}</strong>
 </div>
 {% endif %}
 
 {% if error %}
-<div class="bg-red-100 text-red-800 p-4 rounded mb-6 max-w-xl">
-    {{ error }}
+<div class="card bg-danger mb-6" style="background: rgba(218, 54, 51, 0.2); border-color: rgba(218, 54, 51, 0.4);">
+    <strong class="text-danger">{{ error }}</strong>
 </div>
 {% endif %}
 
+<div class="grid grid-cols-2 gap-6">
 
-<!-- ============================= -->
-<!-- QR SCANNER -->
-<!-- ============================= -->
+    <!-- QR SCANNER -->
+    <div class="card">
+        <h2 class="mb-4">Scan QR Code</h2>
+        <div id="reader" style="width:100%; max-width: 400px; margin: 0 auto; border-radius: 8px; overflow: hidden;">
+        </div>
+    </div>
 
-<div class="bg-white p-6 rounded shadow max-w-xl mb-6">
-
-    <h2 class="text-lg font-semibold mb-4">Scan QR Code</h2>
-
-    <div id="reader" style="width:300px;"></div>
-
-</div>
-
-
-<!-- ============================= -->
-<!-- MANUAL ENTRY (Fallback) -->
-<!-- ============================= -->
-
-<div class="bg-white p-6 rounded shadow max-w-xl">
-
-    <h2 class="text-lg font-semibold mb-4">Manual Token Entry</h2>
-
-    <form method="post" action="/tokens/redeem" class="space-y-4">
-
-        <input 
-            id="token_input"
-            name="token_uuid"
-            placeholder="Enter Token ID"
-            required
-            class="w-full border p-2 rounded"
-        >
-
-        <button 
-            type="submit"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-            Redeem Diesel
-        </button>
-
-    </form>
+    <!-- MANUAL ENTRY -->
+    <div class="card">
+        <h2 class="mb-4">Manual Token Entry</h2>
+        <form method="post" action="/tokens/redeem">
+            <div class="form-group">
+                <input id="token_input" name="token_uuid" placeholder="Enter Token ID" required class="form-input">
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label class="text-muted" style="font-size: 0.9rem; margin-bottom: 0.4rem; display: block;">Redeemed
+                    Amount (₹)</label>
+                <input type="number" step="0.01" name="amount" placeholder="e.g. 500.00" required class="form-input">
+            </div>
+            <button type="submit" class="btn btn-primary w-full" style="margin-top: 1.5rem;">Process Diesel</button>
+        </form>
+    </div>
 
 </div>
 
-
-<!-- ============================= -->
 <!-- QR SCANNER SCRIPT -->
-<!-- ============================= -->
-
 <script src="https://unpkg.com/html5-qrcode"></script>
-
 <script>
+    function onScanSuccess(decodedText, decodedResult) {
+        document.getElementById("token_input").value = decodedText;
+        html5QrcodeScanner.clear();
+    }
+    function onScanError(errorMessage) { }
 
-function onScanSuccess(decodedText, decodedResult) {
-    
-    // Auto-fill token field
-    document.getElementById("token_input").value = decodedText;
-
-    // Stop scanner after scan
-    html5QrcodeScanner.clear();
-}
-
-function onScanError(errorMessage) {
-    // Ignore errors
-}
-
-let html5QrcodeScanner = new Html5QrcodeScanner(
-    "reader",
-    { fps: 10, qrbox: 250 }
-);
-
-html5QrcodeScanner.render(onScanSuccess, onScanError);
-
+    let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess, onScanError);
 </script>
 
 {% endblock %}

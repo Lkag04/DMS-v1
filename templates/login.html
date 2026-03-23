@@ -1,58 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<div class="flex justify-center items-center min-h-[80vh]">
-
-    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
-
-        <h2 class="text-2xl font-bold mb-6 text-center">
-            Login to Diesel ERP
-        </h2>
+<div class="flex items-center justify-center min-h-screen">
+    <div class="card max-w-md">
+        <h2 class="text-center mb-6">Login to Diesel ERP</h2>
 
         {% if error %}
-        <div class="bg-red-100 text-red-700 p-2 mb-4 rounded">
+        <div class="card bg-danger mb-4"
+            style="background: rgba(218, 54, 51, 0.2); border-color: rgba(218, 54, 51, 0.4); padding: 1rem;">
             {{ error }}
         </div>
         {% endif %}
 
-        <form method="post" action="/login" class="space-y-4">
+        {% if success %}
+        <div class="card bg-success mb-4"
+            style="background: rgba(35, 134, 54, 0.2); border: 1px solid var(--success); color: #fff; padding: 1rem;">
+            {{ success }}
+        </div>
+        {% endif %}
 
-            <div>
-                <label class="block text-sm mb-1">Username</label>
-                <input 
-                    type="text" 
-                    name="username"
-                    required
-                    class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
+        <form method="post" action="/login">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" required class="form-input" placeholder="Enter your username">
             </div>
 
-            <div>
-                <label class="block text-sm mb-1">Password</label>
-                <input 
-                    type="password" 
-                    name="password"
-                    required
-                    class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
+            <div class="form-group mb-6">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" required class="form-input" placeholder="Enter your password">
             </div>
 
-            <button 
-                type="submit"
-                class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-            >
+            <button type="submit" class="btn btn-primary w-full">
                 Login
             </button>
 
+            <div class="text-center mt-4">
+                <a href="/forgot-password" style="color: var(--primary); font-size: 0.9rem;"
+                    class="hover:text-primary transition">Forgot Password?</a>
+            </div>
         </form>
 
-        <div class="text-center text-sm text-gray-500 mt-4">
+        <div class="text-center text-muted mt-4 text-sm">
             Default Admin: admin / admin123
         </div>
-
     </div>
-
 </div>
-
 {% endblock %}

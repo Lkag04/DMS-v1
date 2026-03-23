@@ -1,43 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-4">
 
-    <h2 class="fw-bold mb-4">🚚 Trip Details</h2>
+<h1 class="mb-6"> Trip Details</h1>
 
-    <div class="card shadow-sm p-4">
+<div class="card max-w-md mb-6" style="border-left: 4px solid var(--primary);">
+  <div style="display: grid; grid-template-columns: 140px 1fr; gap: 0.8rem; margin-bottom: 1.5rem;">
+    <span class="text-muted">Trip ID</span>
+    <strong>#{{ trip.id }}</strong>
 
-        <p><strong>Trip ID:</strong> #{{ trip.id }}</p>
+    <span class="text-muted">Transporter</span>
+    <strong>{{ transporter.name if transporter else "N/A" }}</strong>
 
-        <p><strong>Transporter:</strong> 
-            {{ transporter.name if transporter else "N/A" }}
-        </p>
+    <span class="text-muted">Origin</span>
+    <span>{{ trip.origin }}</span>
 
-        <p><strong>Origin:</strong> {{ trip.origin }}</p>
+    <span class="text-muted">Destination</span>
+    <span>{{ trip.destination }}</span>
 
-        <p><strong>Destination:</strong> {{ trip.destination }}</p>
+    <span class="text-muted">Material</span>
+    <span>{{ trip.material }} ({{ trip.qty_mt }} MT)</span>
 
-        <p><strong>Freight Amount:</strong> ₹{{ trip.freight_amount }}</p>
+    <span class="text-muted">Driver</span>
+    <span>{{ trip.driver_name }} ({{ trip.driver_number }})</span>
 
-        <p><strong>Remaining Balance:</strong> ₹{{ trip.remaining_balance }}</p>
+    <span class="text-muted">Freight Amount</span>
+    <strong>₹{{ trip.freight_amount }}</strong>
 
-        <p><strong>Status:</strong> 
-            <span class="badge bg-success">{{ trip.status }}</span>
-        </p>
+    <span class="text-muted">Remaining Balance</span>
+    <strong class="text-warning">₹{{ trip.remaining_balance }}</strong>
 
-    </div>
+    <span class="text-muted">Status</span>
+    <div><span class="badge badge-green">{{ trip.status }}</span></div>
+  </div>
 
-    <div class="mt-4">
-
-        <a href="/tokens/issue/{{ trip.id }}" class="btn btn-primary">
-            ⛽ Issue Diesel Token
-        </a>
-
-        <a href="/trips" class="btn btn-secondary">
-            ← Back
-        </a>
-
-    </div>
-
+  <div class="flex gap-4">
+    <a href="/tokens/issue/{{ trip.id }}" class="btn btn-primary"> Issue Diesel Token</a>
+    <a href="/trips" class="btn btn-secondary">← Back</a>
+  </div>
 </div>
+
 {% endblock %}

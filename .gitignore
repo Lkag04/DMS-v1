@@ -1,0 +1,17 @@
+# Environments
+.env
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.pyc
+env/
+venv/
+.venv/
+
+# App Data
+static/qrcodes/*.png

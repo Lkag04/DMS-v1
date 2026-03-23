@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[80vh]">
+    <div class="card max-w-md w-full text-center" style="padding: 3rem; border-top: 5px solid var(--danger);">
+        <div style="font-size: 4rem; line-height: 1; margin-bottom: 1rem;">🚫</div>
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--danger); font-weight: 700;">403</h1>
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-color);">Access Denied</h2>
+        <p class="text-muted mb-8" style="font-size: 1.1rem;">
+            Your current assigned role does not have sufficient system authorization to execute this query or view this
+            restricted interface.
+        </p>
+
+        <div class="flex gap-4 justify-center">
+            <button onclick="window.history.back()" class="btn"
+                style="padding: 0.8rem 1.5rem; background: var(--bg-secondary); color: var(--text-color);">
+                ← Go Back
+            </button>
+            <a href="/" class="btn btn-primary" style="padding: 0.8rem 1.5rem; text-decoration: none;">
+                Dashboard Security
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

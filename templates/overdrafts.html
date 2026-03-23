@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1>Overdraft Requests</h1>
+        <span class="text-muted">Approve or reject diesel token overdraft requests from Pump Salesmen.</span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Token UUID</th>
+                    <th>Transporter</th>
+                    <th>Original Issued</th>
+                    <th>Requested Overdraft</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for token in tokens %}
+                <tr>
+                    <td><strong>{{ token.token_uuid }}</strong></td>
+                    <td>{{ token.transporter.name }}</td>
+                    <td>₹{{ token.value }}</td>
+                    <td class="text-warning" style="font-weight: 700;">+ ₹{{ token.overdraft_amount }}</td>
+                    <td>
+                        <div class="flex gap-4">
+                            <form method="post" action="/overdrafts/{{ token.token_uuid }}/approve" style="margin: 0;">
+                                <button type="submit" class="btn btn-success"
+                                    style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Approve</button>
+                            </form>
+                            <form method="post" action="/overdrafts/{{ token.token_uuid }}/reject" style="margin: 0;">
+                                <button type="submit" class="btn btn-danger"
+                                    style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Reject</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted" style="padding: 2rem;">No pending overdraft requests
+                        at this time.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

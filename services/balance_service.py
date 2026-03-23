@@ -3,10 +3,10 @@ from datetime import datetime
 
 from database.models import Transaction, Transporter, Trip
 
-
 # ================================
 # CREATE TRANSACTION ENTRY
 # ================================
+
 
 def create_transaction(
     db: Session,
@@ -14,7 +14,7 @@ def create_transaction(
     trip_id: int,
     txn_type: str,
     amount: float,
-    description: str = ""
+    description: str = "",
 ):
     """
     Creates a ledger entry (like Tally)
@@ -26,7 +26,7 @@ def create_transaction(
         type=txn_type,
         amount=amount,
         description=description,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
     db.add(txn)
@@ -39,12 +39,8 @@ def create_transaction(
 # ADD FREIGHT (TRIP CREATION)
 # ================================
 
-def add_freight(
-    db: Session,
-    transporter_id: int,
-    trip_id: int,
-    amount: float
-):
+
+def add_freight(db: Session, transporter_id: int, trip_id: int, amount: float):
     """
     Adds freight to transporter balance
     """
@@ -59,12 +55,7 @@ def add_freight(
     db.commit()
 
     create_transaction(
-        db,
-        transporter_id,
-        trip_id,
-        "freight_added",
-        amount,
-        "Freight added for trip"
+        db, transporter_id, trip_id, "freight_added", amount, "Freight added for trip"
     )
 
 
@@ -72,12 +63,8 @@ def add_freight(
 # DEDUCT DIESEL (TOKEN ISSUE)
 # ================================
 
-def deduct_diesel(
-    db: Session,
-    transporter_id: int,
-    trip_id: int,
-    amount: float
-):
+
+def deduct_diesel(db: Session, transporter_id: int, trip_id: int, amount: float):
     """
     Deduct diesel value from transporter balance
     """
@@ -110,7 +97,7 @@ def deduct_diesel(
         trip_id,
         "diesel_redeemed",
         -amount,
-        "Diesel issued against token"
+        "Diesel issued against token",
     )
 
 
@@ -118,12 +105,8 @@ def deduct_diesel(
 # MANUAL ADJUSTMENT (ADMIN USE)
 # ================================
 
-def adjust_balance(
-    db: Session,
-    transporter_id: int,
-    amount: float,
-    description: str
-):
+
+def adjust_balance(db: Session, transporter_id: int, amount: float, description: str):
     """
     Admin can adjust balance (+ or -)
     """
@@ -137,19 +120,13 @@ def adjust_balance(
 
     db.commit()
 
-    create_transaction(
-        db,
-        transporter_id,
-        None,
-        "adjustment",
-        amount,
-        description
-    )
+    create_transaction(db, transporter_id, None, "adjustment", amount, description)
 
 
 # ================================
 # GET TRANSPORTER BALANCE
 # ================================
+
 
 def get_transporter_balance(db: Session, transporter_id: int):
 
@@ -165,6 +142,7 @@ def get_transporter_balance(db: Session, transporter_id: int):
 # GET TRIP BALANCE
 # ================================
 
+
 def get_trip_balance(db: Session, trip_id: int):
 
     trip = db.query(Trip).get(trip_id)
@@ -179,14 +157,18 @@ def get_trip_balance(db: Session, trip_id: int):
 # LEDGER GENERATION (RUNNING BALANCE)
 # ================================
 
+
 def get_ledger(db: Session, transporter_id: int):
     """
     Returns running ledger like Tally
     """
 
-    txns = db.query(Transaction).filter(
-        Transaction.transporter_id == transporter_id
-    ).order_by(Transaction.created_at).all()
+    txns = (
+        db.query(Transaction)
+        .filter(Transaction.transporter_id == transporter_id)
+        .order_by(Transaction.created_at)
+        .all()
+    )
 
     balance = 0
     ledger = []
@@ -194,12 +176,14 @@ def get_ledger(db: Session, transporter_id: int):
     for txn in txns:
         balance += txn.amount
 
-        ledger.append({
-            "date": txn.created_at,
-            "type": txn.type,
-            "amount": txn.amount,
-            "balance": balance,
-            "description": txn.description
-        })
+        ledger.append(
+            {
+                "date": txn.created_at,
+                "type": txn.type,
+                "amount": txn.amount,
+                "balance": balance,
+                "description": txn.description,
+            }
+        )
 
     return ledger

@@ -59,10 +59,12 @@ MAX_TOKEN_VALUE = 100000
 # ================================
 
 ROLES = {
+    "MASTER_ADMIN": "master_admin",
     "ADMIN": "admin",
-    "FACTORY": "factory",
-    "PUMP": "pump",
-    "ACCOUNTS": "accounts"
+    "FACTORY_OPS": "factory_ops",
+    "FACTORY_EMP": "factory_employee",
+    "PUMP_OPS": "pump_ops",
+    "PUMP_SALES": "pump_salesman",
 }
 
 

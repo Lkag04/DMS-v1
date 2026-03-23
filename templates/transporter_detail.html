@@ -1,153 +1,146 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-4">
 
-    <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-0">🚚 Transporter Details</h2>
-            <small class="text-muted">Overview of trips and balances</small>
-        </div>
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="mb-2"> Transporter Details</h1>
+    <span class="text-muted">Overview of trips, balance & ledger</span>
+  </div>
+  <a href="/transporters" class="btn btn-secondary">← Back</a>
+</div>
 
-        <a href="/transporters" class="btn btn-outline-secondary">
-            ← Back
-        </a>
+<!-- TRANSPORTER CARD -->
+<div class="card flex justify-between items-center mb-6" style="border-left: 4px solid var(--primary);">
+  <div>
+    <h2 class="mb-2">{{ transporter.name }}</h2>
+    <span class="text-muted"> {{ transporter.phone or "N/A" }} &nbsp;|&nbsp; {{ transporter.trucks|length }}
+      Trucks</span>
+  </div>
+  <div style="text-align: right;">
+    <span class="text-muted text-sm">Transporter ID</span>
+    <div style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem;">#{{ transporter.id }}</div>
+    <div class="flex gap-4 justify-center">
+      <a href="/trips" class="btn btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">+ Trip</a>
+      <a href="/token/issue" class="btn btn-success" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Issue
+        Token</a>
     </div>
+  </div>
+</div>
 
-    <!-- TRANSPORTER CARD -->
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-body d-flex justify-content-between align-items-center">
+<!-- SUMMARY CARDS -->
+<div class="grid grid-cols-4 mb-8">
+  <div class="card text-center">
+    <h3 class="text-muted mb-2 text-sm" style="text-transform: uppercase;">Total Trips</h3>
+    <p style="font-size: 2rem; font-weight: 700;">{{ trips|length }}</p>
+  </div>
+  <div class="card text-center" style="border-top: 3px solid var(--danger);">
+    <h3 class="text-muted mb-2 text-sm" style="text-transform: uppercase;">Pending Balance</h3>
+    <p class="text-danger" style="font-size: 2rem; font-weight: 700;">₹{{ trips | sum(attribute='remaining_balance')
+      }}</p>
+  </div>
+  <div class="card text-center" style="border-top: 3px solid var(--primary);">
+    <h3 class="text-muted mb-2 text-sm" style="text-transform: uppercase;">Total Freight</h3>
+    <p class="text-primary" style="font-size: 2rem; font-weight: 700;">₹{{ trips | sum(attribute='freight_amount')
+      }}</p>
+  </div>
+  <div class="card text-center" style="border-top: 3px solid var(--success);">
+    <h3 class="text-muted mb-2 text-sm" style="text-transform: uppercase;">Current Balance</h3>
+    <p class="{% if transporter.balance > 0 %}text-danger{% else %}text-success{% endif %}"
+      style="font-size: 2rem; font-weight: 700;">₹{{ transporter.balance }}</p>
+  </div>
+</div>
 
-            <div>
-                <h4 class="fw-semibold mb-1">{{ transporter.name }}</h4>
-                <small class="text-muted">
-                    Contact: {{ transporter.contact or "N/A" }}
-                </small>
-            </div>
+<!-- TABLES -->
+<div class="grid grid-cols-2 gap-6">
 
-            <div class="text-end">
-                <small class="text-muted">Transporter ID</small>
-                <div class="fw-bold">#{{ transporter.id }}</div>
-            </div>
-
-        </div>
+  <!-- TRIPS TABLE -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2 class="mb-4"> Trips</h2>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Truck</th>
+            <th>Route</th>
+            <th>Freight</th>
+            <th>Remaining</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for trip in trips %}
+          <tr>
+            <td>#{{ trip.id }}</td>
+            <td>{{ trip.truck.vehicle_number }}</td>
+            <td><span class="text-success">{{ trip.origin }}</span> → <span class="text-primary">{{
+                trip.destination }}</span></td>
+            <td>₹{{ trip.freight_amount }}</td>
+            <td>
+              {% if trip.remaining_balance > 0 %}
+              <strong class="text-danger">₹{{ trip.remaining_balance }}</strong>
+              {% else %}
+              <span class="text-success">₹0</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if trip.remaining_balance > 0 %}
+              <span class="badge badge-orange">Pending</span>
+              {% else %}
+              <span class="badge badge-green">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">No trips found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <!-- SUMMARY STATS -->
-    <div class="row g-4 mb-4">
-
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-4 text-center p-3">
-                <small class="text-muted">Total Trips</small>
-                <h3 class="fw-bold">{{ trips|length }}</h3>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-4 text-center p-3">
-                <small class="text-muted">Pending Balance</small>
-                <h3 class="fw-bold text-danger">
-                    ₹ {{ trips | sum(attribute='remaining_balance') }}
-                </h3>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-4 text-center p-3">
-                <small class="text-muted">Total Freight</small>
-                <h3 class="fw-bold text-primary">
-                    ₹ {{ trips | sum(attribute='freight_amount') }}
-                </h3>
-            </div>
-        </div>
-
+  <!-- LEDGER -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2 class="mb-4"> Ledger</h2>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in ledger %}
+          <tr>
+            <td>{{ entry.created_at }}</td>
+            <td>
+              {% if entry.type == "freight_added" %}
+              <span class="badge badge-blue">Freight</span>
+              {% elif entry.type == "diesel_redeemed" %}
+              <span class="badge badge-green">Diesel</span>
+              {% else %}
+              <span class="badge badge-orange">Other</span>
+              {% endif %}
+            </td>
+            <td style="font-weight: bold;">₹{{ entry.amount }}</td>
+            <td>{{ entry.description }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">No ledger entries found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-
-    <!-- TRIPS TABLE -->
-    <div class="card shadow-sm border-0 rounded-4">
-
-        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">📦 Trips</h5>
-
-            <a href="/trips" class="btn btn-sm btn-outline-dark">
-                View All Trips
-            </a>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Route</th>
-                        <th>Freight</th>
-                        <th>Remaining</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for trip in trips %}
-                    <tr>
-
-                        <td class="fw-semibold">#{{ trip.id }}</td>
-
-                        <td>
-                            <span class="text-success">{{ trip.origin }}</span>
-                            →
-                            <span class="text-danger">{{ trip.destination }}</span>
-                        </td>
-
-                        <td>₹ {{ trip.freight_amount }}</td>
-
-                        <td>
-                            {% if trip.remaining_balance > 0 %}
-                                <span class="text-danger fw-bold">
-                                    ₹ {{ trip.remaining_balance }}
-                                </span>
-                            {% else %}
-                                <span class="text-success fw-semibold">₹ 0</span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if trip.remaining_balance > 0 %}
-                                <span class="badge bg-warning text-dark">
-                                    Pending
-                                </span>
-                            {% else %}
-                                <span class="badge bg-success">
-                                    Completed
-                                </span>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            <a href="/trips/{{ trip.id }}" 
-                               class="btn btn-sm btn-outline-primary">
-                                View
-                            </a>
-                        </td>
-
-                    </tr>
-                    {% endfor %}
-
-                    {% if trips|length == 0 %}
-                    <tr>
-                        <td colspan="6" class="text-center p-4 text-muted">
-                            No trips found for this transporter.
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-
-            </table>
-        </div>
-
-    </div>
+  </div>
 
 </div>
+
 {% endblock %}

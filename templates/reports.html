@@ -2,154 +2,96 @@
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Reports Dashboard</h1>
+<div class="flex items-center justify-between mb-6">
+    <h1>Reports Dashboard</h1>
+    <a href="/reports/export" class="btn btn-secondary">Export CSV (Tally)</a>
+</div>
 
 <!-- ============================= -->
 <!-- SUMMARY CARDS -->
 <!-- ============================= -->
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-gray-500 text-sm">Total Transporter Balance</h2>
-        <p class="text-2xl font-bold text-red-600">
-            ₹{{ total_balance }}
+<div class="grid grid-cols-4 mb-8">
+    <div class="card text-center" style="border-top: 3px solid var(--danger);">
+        <h3 class="text-muted mb-2" style="font-size: 0.9rem; text-transform: uppercase;">Total Transporter Balance</h3>
+        <p class="text-danger" style="font-size: 2rem; font-weight: 700;">₹{{ total_balance }}</p>
+    </div>
+    <div class="card text-center" style="border-top: 3px solid var(--primary);">
+        <h3 class="text-muted mb-2" style="font-size: 0.9rem; text-transform: uppercase;">Total Freight</h3>
+        <p class="text-primary" style="font-size: 2rem; font-weight: 700; color: var(--primary);">₹{{ total_freight }}
         </p>
     </div>
-
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-gray-500 text-sm">Total Freight</h2>
-        <p class="text-2xl font-bold text-blue-600">
-            ₹{{ total_freight }}
-        </p>
+    <div class="card text-center" style="border-top: 3px solid var(--success);">
+        <h3 class="text-muted mb-2" style="font-size: 0.9rem; text-transform: uppercase;">Total Diesel Issued</h3>
+        <p class="text-success" style="font-size: 2rem; font-weight: 700;">₹{{ total_diesel }}</p>
     </div>
-
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-gray-500 text-sm">Total Diesel Issued</h2>
-        <p class="text-2xl font-bold text-green-600">
-            ₹{{ total_diesel }}
-        </p>
-    </div>
-
 </div>
 
+<div class="grid grid-cols-2 gap-6">
 
-<!-- ============================= -->
-<!-- EXPORT BUTTON -->
-<!-- ============================= -->
-
-<div class="mb-6">
-    <a href="/reports/export" 
-       class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">
-        Export CSV (Tally)
-    </a>
-</div>
-
-
-<!-- ============================= -->
-<!-- TRANSPORTER SUMMARY -->
-<!-- ============================= -->
-
-<div class="bg-white p-6 rounded shadow mb-8">
-
-    <h2 class="text-lg font-semibold mb-4">Transporter Balances</h2>
-
-    <table class="w-full border">
-
-        <thead class="bg-gray-200">
-            <tr>
-                <th class="p-2 border">ID</th>
-                <th class="p-2 border">Name</th>
-                <th class="p-2 border">Balance</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            {% for t in transporters %}
-
-            <tr class="text-center">
-
-                <td class="p-2 border">{{ t.id }}</td>
-
-                <td class="p-2 border font-medium">
-                    {{ t.name }}
-                </td>
-
-                <td class="p-2 border font-bold text-blue-600">
-                    ₹{{ t.balance }}
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-</div>
-
-
-<!-- ============================= -->
-<!-- TRANSACTION LEDGER -->
-<!-- ============================= -->
-
-<div class="bg-white p-6 rounded shadow">
-
-    <h2 class="text-lg font-semibold mb-4">Transaction Ledger</h2>
-
-    <table class="w-full border text-sm">
-
-        <thead class="bg-gray-200">
-            <tr>
-                <th class="p-2 border">Date</th>
-                <th class="p-2 border">Transporter</th>
-                <th class="p-2 border">Trip</th>
-                <th class="p-2 border">Type</th>
-                <th class="p-2 border">Amount</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            {% for txn in transactions %}
-
-            <tr class="text-center">
-
-                <td class="p-2 border">
-                    {{ txn.created_at }}
-                </td>
-
-                <td class="p-2 border">
-                    {{ txn.transporter_id }}
-                </td>
-
-                <td class="p-2 border">
-                    {{ txn.trip_id }}
-                </td>
-
-                <td class="p-2 border">
-                    {{ txn.type }}
-                </td>
-
-                <td class="p-2 border font-bold
-                    {% if txn.amount > 0 %}
-                        text-green-600
+    <!-- TRANSPORTER SUMMARY -->
+    <div class="card" style="grid-column: 1 / 2;">
+        <h2 class="mb-4">Transporter Balances</h2>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transporters %}
+                    <tr>
+                        <td>{{ t.id }}</td>
+                        <td style="font-weight: 500;">{{ t.name }}</td>
+                        <td style="font-weight: bold; color: var(--primary);">₹{{ t.balance }}</td>
+                    </tr>
                     {% else %}
-                        text-red-600
-                    {% endif %}
-                ">
-                    ₹{{ txn.amount }}
-                </td>
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-4">No data.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
+    <!-- TRANSACTION LEDGER -->
+    <div class="card" style="grid-column: 2 / -1;">
+        <h2 class="mb-4">Transaction Ledger</h2>
+        <div class="table-container">
+            <table class="table" style="font-size: 0.9rem;">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Transporter</th>
+                        <th>Trip</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in transactions %}
+                    <tr>
+                        <td>{{ txn.created_at }}</td>
+                        <td>{{ txn.transporter_id }}</td>
+                        <td>{{ txn.trip_id }}</td>
+                        <td><span class="badge badge-blue" style="font-size: 0.7rem;">{{ txn.type }}</span></td>
+                        <td style="font-weight: bold;"
+                            class="{% if txn.amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                            ₹{{ txn.amount }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No transactions.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 </div>
 

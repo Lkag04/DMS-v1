@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1>Master Admin Dashboard</h1>
+    <span class="text-muted">Welcome, <strong style="color: var(--primary);">{{ user.username }}</strong></span>
+  </div>
+</div>
+
+<!-- TABS NAVIGATION -->
+<div class="tab-list">
+  <button class="tab-btn tab-active" onclick="openTab(event, 'tab-factory')"> Factory</button>
+  <button class="tab-btn" onclick="openTab(event, 'tab-pump')"> Petrol Pump</button>
+  <button class="tab-btn" onclick="openTab(event, 'tab-users')"> User Management</button>
+  <button class="tab-btn" onclick="openTab(event, 'tab-settings')"> Settings</button>
+</div>
+
+<!-- ===================================== -->
+<!-- TAB: FACTORY -->
+<!-- ===================================== -->
+<div id="tab-factory" class="tab-content active">
+
+  <div class="grid grid-cols-4 mb-8">
+    <div class="card text-center text-muted">
+      <h3 class="text-sm uppercase mb-2">Transporters</h3>
+      <p style="font-size: 2rem; font-weight: 700; color: #fff;">{{ transporters }}</p>
+    </div>
+    <div class="card text-center" style="border-top: 3px solid var(--warning);">
+      <h3 class="text-sm uppercase mb-2 text-warning">Pending Freight</h3>
+      <p class="text-warning" style="font-size: 2rem; font-weight: 700;">₹{{ pending }}</p>
+    </div>
+    <div class="card text-center" style="border-top: 3px solid var(--success);">
+      <h3 class="text-sm uppercase mb-2 text-success">Diesel Issued</h3>
+      <p class="text-success" style="font-size: 2rem; font-weight: 700;">₹{{ diesel }}</p>
+    </div>
+    <div class="card text-center" style="border-top: 3px solid #bc8cff;">
+      <h3 class="text-sm uppercase mb-2" style="color: #bc8cff;">Total Trips</h3>
+      <p style="color: #bc8cff; font-size: 2rem; font-weight: 700;">{{ trips }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="mb-4">Quick Actions</h2>
+    <div class="flex flex-wrap gap-4">
+      <a href="/transporters" class="btn btn-primary">Manage Transporters</a>
+      <a href="/trips" class="btn btn-success">Add / View Trips</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================== -->
+<!-- TAB: PETROL PUMP -->
+<!-- ===================================== -->
+<div id="tab-pump" class="tab-content">
+  <div class="card">
+    <h2 class="mb-4">Petrol Pump Actions</h2>
+    <p class="text-muted mb-4">Manage diesel tokens directly from here.</p>
+    <div class="flex flex-wrap gap-4">
+      <a href="/tokens/redeem" class="btn"
+        style="background: rgba(210, 153, 34, 0.2); border: 1px solid var(--warning); color: var(--warning);">Redeem
+        Diesel</a>
+      <a href="/overdrafts" class="btn"
+        style="background: rgba(218, 54, 51, 0.2); border: 1px solid var(--danger); color: var(--danger);">Review
+        Overdrafts</a>
+      <a href="/ledger" class="btn btn-secondary">View Transporter Ledgers</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================== -->
+<!-- TAB: USERS -->
+<!-- ===================================== -->
+<div id="tab-users" class="tab-content">
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- Add User Form -->
+    <div class="card">
+      <h2 class="mb-4">Create User</h2>
+      <form method="post" action="/users/add">
+        <div class="form-group">
+          <input name="username" placeholder="Username" required class="form-input">
+        </div>
+        <div class="form-group">
+          <input name="email" type="email" placeholder="Email Address" required class="form-input">
+        </div>
+        <div class="form-group">
+          <input name="password" type="password" placeholder="Password" required class="form-input">
+        </div>
+        <div class="form-group">
+          <select name="role" required class="form-input">
+            <option value="" disabled selected style="color: grey;">Select Role</option>
+            <option value="factory_ops" style="color: black;">Factory Operations</option>
+            <option value="factory_employee" style="color: black;">Factory Employee</option>
+            <option value="pump_ops" style="color: black;">Pump Operations</option>
+            <option value="pump_salesman" style="color: black;">Pump Salesman</option>
+            <option value="admin" style="color: black;">Admin</option>
+            <option value="master_admin" style="color: black;">Master Admin</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Add User</button>
+      </form>
+    </div>
+
+    <!-- System Users List -->
+    <div class="card">
+      <h2 class="mb-4">System Users</h2>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sys_user in users %}
+            <tr>
+              <td style="font-weight: 600;">{{ sys_user.username }}</td>
+              <td>
+                {% if sys_user.role == "master_admin" %}
+                <span class="badge badge-orange"
+                  style="background:#ff980020; color:#ff9800; border:1px solid #ff980040;">Master
+                  Admin</span>
+                {% elif sys_user.role == "admin" %}
+                <span class="badge badge-orange">Admin</span>
+                {% elif "factory" in sys_user.role %}
+                <span class="badge badge-blue">{{ sys_user.role | replace('_', ' ') | title }}</span>
+                {% elif "pump" in sys_user.role %}
+                <span class="badge badge-green">{{ sys_user.role | replace('_', ' ') | title }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if sys_user.username != "admin" %}
+                <a href="/users/delete/{{ sys_user.id }}" class="btn btn-danger"
+                  style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Remove</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================================== -->
+<!-- TAB: SETTINGS -->
+<!-- ===================================== -->
+<div id="tab-settings" class="tab-content">
+  <div class="card max-w-md">
+    <h2 class="mb-4">Application Settings</h2>
+    <p class="text-muted mb-6">Global ERP configuration and preferences.</p>
+
+    <div class="form-group">
+      <label class="form-label text-muted">Application Timezone</label>
+      <input value="Asia/Kolkata (IST)" disabled class="form-input">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label text-muted">Diesel Base Rate</label>
+      <input value="System Derived" disabled class="form-input">
+    </div>
+
+    <button class="btn btn-primary w-full" disabled>Save Settings</button>
+  </div>
+</div>
+
+<script>
+  function openTab(evt, tabId) {
+    // Hide all contents
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    // Remove active style from all buttons
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+
+    // Activate target block and button
+    document.getElementById(tabId).classList.add('active');
+    evt.currentTarget.classList.add('tab-active');
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab');
+    if (activeTab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+      const targetContent = document.getElementById(activeTab);
+      if (targetContent) targetContent.classList.add('active');
+      const targetBtn = document.querySelector(`.tab-btn[onclick*="${activeTab}"]`);
+      if (targetBtn) targetBtn.classList.add('tab-active');
+    }
+  });
+</script>
+
+{% endblock %}

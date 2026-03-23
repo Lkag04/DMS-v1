@@ -22,11 +22,12 @@ templates = Jinja2Templates(directory="templates")
 # REPORT DASHBOARD
 # ================================
 
+
 @router.get("/reports")
 def reports_dashboard(
     request: Request,
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"], ROLES["ACCOUNTS"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["ADMIN"]])),
 ):
 
     transporters = db.query(Transporter).all()
@@ -47,8 +48,8 @@ def reports_dashboard(
             "total_balance": total_balance,
             "total_freight": total_freight,
             "total_diesel": total_diesel,
-            "user": user
-        }
+            "user": user,
+        },
     )
 
 
@@ -56,11 +57,12 @@ def reports_dashboard(
 # TRANSPORTER SUMMARY REPORT
 # ================================
 
+
 @router.get("/reports/transporters")
 def transporter_report(
     request: Request,
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"], ROLES["ACCOUNTS"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["ADMIN"]])),
 ):
 
     transporters = db.query(Transporter).all()
@@ -68,18 +70,10 @@ def transporter_report(
     data = []
 
     for t in transporters:
-        data.append({
-            "name": t.name,
-            "balance": t.balance
-        })
+        data.append({"name": t.name, "balance": t.balance})
 
     return templates.TemplateResponse(
-        "reports.html",
-        {
-            "request": request,
-            "transporter_summary": data,
-            "user": user
-        }
+        "reports.html", {"request": request, "transporter_summary": data, "user": user}
     )
 
 
@@ -87,22 +81,18 @@ def transporter_report(
 # TRANSACTION REPORT
 # ================================
 
+
 @router.get("/reports/transactions")
 def transaction_report(
     request: Request,
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"], ROLES["ACCOUNTS"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["ADMIN"]])),
 ):
 
     transactions = db.query(Transaction).all()
 
     return templates.TemplateResponse(
-        "reports.html",
-        {
-            "request": request,
-            "transactions": transactions,
-            "user": user
-        }
+        "reports.html", {"request": request, "transactions": transactions, "user": user}
     )
 
 
@@ -110,43 +100,39 @@ def transaction_report(
 # EXPORT CSV (TALLY INTEGRATION)
 # ================================
 
+
 @router.get("/reports/export")
 def export_csv(
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"], ROLES["ACCOUNTS"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["ADMIN"]])),
 ):
 
     output = io.StringIO()
     writer = csv.writer(output)
 
     # Header
-    writer.writerow([
-        "Date",
-        "Transporter ID",
-        "Trip ID",
-        "Type",
-        "Amount",
-        "Description"
-    ])
+    writer.writerow(
+        ["Date", "Transporter ID", "Trip ID", "Type", "Amount", "Description"]
+    )
 
     transactions = db.query(Transaction).all()
 
     for txn in transactions:
-        writer.writerow([
-            txn.created_at,
-            txn.transporter_id,
-            txn.trip_id,
-            txn.type,
-            txn.amount,
-            txn.description
-        ])
+        writer.writerow(
+            [
+                txn.created_at,
+                txn.transporter_id,
+                txn.trip_id,
+                txn.type,
+                txn.amount,
+                txn.description,
+            ]
+        )
 
     output.seek(0)
 
     return StreamingResponse(
         output,
         media_type="text/csv",
-        headers={
-            "Content-Disposition": "attachment; filename=erp_report.csv"
-        }
+        headers={"Content-Disposition": "attachment; filename=erp_report.csv"},
     )

@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 from config import DATABASE_URL
 
-
 # ================================
 # DATABASE ENGINE
 # ================================
@@ -15,9 +14,7 @@ if DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 
 engine = create_engine(
-    DATABASE_URL,
-    echo=False,  # Set True for SQL debugging
-    connect_args=connect_args
+    DATABASE_URL, echo=False, connect_args=connect_args  # Set True for SQL debugging
 )
 
 
@@ -25,11 +22,7 @@ engine = create_engine(
 # SESSION CONFIGURATION
 # ================================
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # ================================
@@ -42,6 +35,7 @@ Base = declarative_base()
 # ================================
 # DATABASE DEPENDENCY (FastAPI)
 # ================================
+
 
 def get_db():
     """

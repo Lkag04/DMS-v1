@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[80vh]">
+    <div class="card max-w-md w-full" style="padding: 2.5rem; border-top: 4px solid var(--primary);">
+        <div class="text-center mb-8">
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Two-Factor Verification</h1>
+            <p class="text-muted">We've dispatched a 6-digit code to your email address. It will expire in 10 minutes.
+            </p>
+        </div>
+
+        {% if error %}
+        <div
+            style="background: rgba(218, 54, 51, 0.1); border-left: 4px solid var(--danger); padding: 1rem; margin-bottom: 1.5rem; color: var(--danger);">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="/login/verify" class="flex flex-col gap-5">
+            <div class="form-group">
+                <label class="form-label text-muted">Verification Code</label>
+                <input name="otp" type="text" pattern="[0-9]{6}" maxlength="6" placeholder="------" required
+                    class="form-input"
+                    style="font-size: 1.5rem; letter-spacing: 0.5rem; text-align: center; font-family: monospace;">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full"
+                style="padding: 0.8rem; font-size: 1.1rem; font-weight: 600;">
+                Verify Code
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <a href="/login" class="text-muted text-sm hover:text-primary transition">Back to Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

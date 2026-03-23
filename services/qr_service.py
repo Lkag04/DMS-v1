@@ -3,7 +3,6 @@ import qrcode
 
 from config import QR_FOLDER
 
-
 # ================================
 # ENSURE QR DIRECTORY EXISTS
 # ================================
@@ -14,6 +13,7 @@ os.makedirs(QR_FOLDER, exist_ok=True)
 # ================================
 # GENERATE QR CODE
 # ================================
+
 
 def generate_qr(token_uuid: str) -> str:
     """
@@ -37,6 +37,7 @@ def generate_qr(token_uuid: str) -> str:
 # CHECK IF QR EXISTS
 # ================================
 
+
 def qr_exists(token_uuid: str) -> bool:
 
     file_path = os.path.join(QR_FOLDER, f"{token_uuid}.png")
@@ -47,6 +48,7 @@ def qr_exists(token_uuid: str) -> bool:
 # ================================
 # GET QR PATH (SAFE)
 # ================================
+
 
 def get_qr_path(token_uuid: str) -> str:
     """
@@ -62,6 +64,7 @@ def get_qr_path(token_uuid: str) -> str:
 # ================================
 # DELETE QR (OPTIONAL CLEANUP)
 # ================================
+
 
 def delete_qr(token_uuid: str):
     """

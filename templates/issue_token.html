@@ -2,93 +2,66 @@
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Issue Diesel Token</h1>
-
-<!-- ============================= -->
-<!-- TRIP DETAILS -->
-<!-- ============================= -->
-
-{% if trip %}
-
-<div class="bg-white p-6 rounded shadow mb-6 max-w-xl">
-
-    <h2 class="text-lg font-semibold mb-4">Trip Details</h2>
-
-    <p><strong>Trip ID:</strong> {{ trip.id }}</p>
-    <p><strong>Route:</strong> {{ trip.origin }} → {{ trip.destination }}</p>
-    <p><strong>Total Freight:</strong> ₹{{ trip.freight_amount }}</p>
-
-    <p class="mt-2 font-bold text-yellow-600">
-        Remaining Balance: ₹{{ trip.remaining_balance }}
-    </p>
-
+<div class="flex items-center justify-between mb-6">
+    <h1>Issue Diesel Token</h1>
 </div>
 
-{% endif %}
+<div class="grid grid-cols-2 gap-6">
 
+    <div class="flex flex-col gap-6">
+        {% if trip %}
+        <div class="card" style="border-left: 4px solid var(--warning);">
+            <h2 class="mb-4">Trip Details</h2>
+            <div style="display: grid; grid-template-columns: 120px 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                <span class="text-muted">Trip ID:</span> <strong>{{ trip.id }}</strong>
+                <span class="text-muted">Route:</span> <span>{{ trip.origin }} → {{ trip.destination }}</span>
+                <span class="text-muted">Total Freight:</span> <span>₹{{ trip.freight_amount }}</span>
+            </div>
+            <div style="font-size: 1.1rem;">
+                <span class="text-muted">Remaining Balance:</span>
+                <strong class="text-warning">₹{{ trip.remaining_balance }}</strong>
+            </div>
+        </div>
+        {% endif %}
 
-<!-- ============================= -->
-<!-- ISSUE TOKEN FORM -->
-<!-- ============================= -->
+        {% if trip and trip.remaining_balance > 0 %}
+        <div class="card text-center">
+            <h2 class="mb-4">Generate Token</h2>
+            <form method="post" action="/tokens/issue">
+                <input type="hidden" name="trip_id" value="{{ trip.id }}">
+                <div class="form-group mb-4">
+                    <input name="value" type="number" placeholder="Enter diesel value (₹)" required class="form-input">
+                </div>
+                <button type="submit" class="btn btn-secondary w-full" style="border-color: #bc8cff; color: #bc8cff;">
+                    Issue Token
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
 
-{% if trip and trip.remaining_balance > 0 %}
+    {% if token %}
+    <div class="flex flex-col gap-6">
+        <div class="card bg-success" style="background: rgba(35, 134, 54, 0.2); border-color: rgba(35, 134, 54, 0.4);">
+            <strong class="text-success">{{ message }}</strong>
+        </div>
 
-<div class="bg-white p-6 rounded shadow mb-6 max-w-xl">
+        <div class="card text-center" style="border: 2px solid #bc8cff;">
+            <h2 class="mb-4" style="color: #bc8cff;">Token Generated</h2>
+            <p class="mb-2"><span class="text-muted">Token ID:</span> <strong>{{ token.token_uuid }}</strong></p>
+            <p class="mb-6"><span class="text-muted">Value:</span> <strong style="font-size: 1.5rem; color: #fff;">₹{{
+                    token.value }}</strong></p>
 
-    <h2 class="text-lg font-semibold mb-4">Generate Token</h2>
+            <div
+                style="background: #fff; padding: 1rem; border-radius: 8px; display: inline-block; margin-bottom: 1rem;">
+                <img src="/{{ qr_path }}" alt="QR Code" width="200" style="display: block;">
+            </div>
 
-    <form method="post" action="/tokens/issue" class="space-y-4">
-
-        <input type="hidden" name="trip_id" value="{{ trip.id }}">
-
-        <input 
-            name="value"
-            type="number"
-            placeholder="Enter diesel value (₹)"
-            required
-            class="w-full border p-2 rounded"
-        >
-
-        <button 
-            type="submit"
-            class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-        >
-            Issue Token
-        </button>
-
-    </form>
-
-</div>
-
-{% endif %}
-
-
-<!-- ============================= -->
-<!-- SUCCESS MESSAGE + QR -->
-<!-- ============================= -->
-
-{% if token %}
-
-<div class="bg-green-100 text-green-800 p-4 rounded mb-6 max-w-xl">
-    {{ message }}
-</div>
-
-<div class="bg-white p-6 rounded shadow max-w-xl text-center">
-
-    <h2 class="text-lg font-semibold mb-4">Token Generated</h2>
-
-    <p class="mb-2"><strong>Token ID:</strong> {{ token.token_uuid }}</p>
-    <p class="mb-4"><strong>Value:</strong> ₹{{ token.value }}</p>
-
-    <!-- QR Code -->
-    <img src="{{ qr_path }}" alt="QR Code" class="mx-auto mb-4" width="200">
-
-    <p class="text-sm text-gray-500">
-        Scan this QR at the petrol pump to redeem diesel
-    </p>
+            <p class="text-muted text-sm">Scan this QR at the petrol pump to redeem diesel.</p>
+        </div>
+    </div>
+    {% endif %}
 
 </div>
-
-{% endif %}
 
 {% endblock %}

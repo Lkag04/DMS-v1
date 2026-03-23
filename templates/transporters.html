@@ -2,121 +2,81 @@
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Transporters</h1>
-
-<!-- ============================= -->
-<!-- ADD TRANSPORTER FORM -->
-<!-- ============================= -->
-
-<div class="bg-white p-6 rounded shadow mb-6 max-w-lg">
-
-    <h2 class="text-lg font-semibold mb-4">Add Transporter</h2>
-
-    <form method="post" action="/transporters/add" class="space-y-4">
-
-        <input 
-            name="name"
-            placeholder="Transporter Name"
-            required
-            class="w-full border p-2 rounded"
-        >
-
-        <input 
-            name="phone"
-            placeholder="Phone Number"
-            class="w-full border p-2 rounded"
-        >
-
-        <input 
-            name="vehicle_number"
-            placeholder="Vehicle Number"
-            class="w-full border p-2 rounded"
-        >
-
-        <button 
-            type="submit"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-            Add Transporter
-        </button>
-
-    </form>
-
+<div class="flex items-center justify-between mb-6">
+  <h1> Transporters</h1>
 </div>
 
+<div class="grid grid-cols-2 gap-6">
 
-<!-- ============================= -->
-<!-- TRANSPORTER TABLE -->
-<!-- ============================= -->
+  <!-- ADD TRANSPORTER FORM -->
+  <div class="card">
+    <h2 class="mb-4">Add Transporter</h2>
+    <form method="post" action="/transporters/add">
+      <div class="form-group">
+        <input name="name" placeholder="Transporter Name" required class="form-input">
+      </div>
+      <div class="form-group">
+        <input name="phone" placeholder="Phone Number" class="form-input">
+      </div>
+      <div class="form-group">
+        <input name="vehicle_number" placeholder="Vehicle Number" class="form-input">
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Add Transporter</button>
+    </form>
+  </div>
 
-<div class="bg-white p-6 rounded shadow">
-
-    <h2 class="text-lg font-semibold mb-4">Transporter List</h2>
-
-    <table class="w-full border">
-
-        <thead class="bg-gray-200">
-            <tr>
-                <th class="p-2 border">ID</th>
-                <th class="p-2 border">Name</th>
-                <th class="p-2 border">Phone</th>
-                <th class="p-2 border">Vehicle</th>
-                <th class="p-2 border">Balance</th>
-                <th class="p-2 border">Actions</th>
-            </tr>
+  <!-- TRANSPORTER TABLE -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2 class="mb-4">Transporter List</h2>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Vehicle</th>
+            <th>Balance</th>
+            <th>Actions</th>
+          </tr>
         </thead>
-
         <tbody>
-
-            {% for t in transporters %}
-
-            <tr class="text-center">
-
-                <td class="p-2 border">{{ t.id }}</td>
-
-                <td class="p-2 border font-medium">
-                    {{ t.name }}
-                </td>
-
-                <td class="p-2 border">{{ t.phone }}</td>
-
-                <td class="p-2 border">{{ t.vehicle_number }}</td>
-
-                <td class="p-2 border">
-                    <span class="font-bold text-blue-600">
-                        ₹{{ t.balance }}
-                    </span>
-                </td>
-
-                <td class="p-2 border space-x-2">
-
-                    <!-- View Ledger -->
-                    <a 
-                        href="/transporters/{{ t.id }}"
-                        class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                    >
-                        View
-                    </a>
-
-                    <!-- Delete (Admin only) -->
-                    {% if user.role == "admin" %}
-                    <a 
-                        href="/transporters/delete/{{ t.id }}"
-                        class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                        Delete
-                    </a>
-                    {% endif %}
-
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
+          {% for t in transporters %}
+          <tr>
+            <td>{{ t.id }}</td>
+            <td style="font-weight: 500;">{{ t.name }}</td>
+            <td>{{ t.phone or "—" }}</td>
+            <td>{{ t.vehicle_number or "—" }}</td>
+            <td>
+              <strong class="{% if t.balance > 0 %}text-warning{% else %}text-success{% endif %}">
+                ₹{{ t.balance }}
+              </strong>
+            </td>
+            <td>
+              <div class="flex gap-4">
+                <a href="/transporters/{{ t.id }}/trucks" class="btn btn-primary"
+                  style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Trucks</a>
+                <a href="/transporters/{{ t.id }}" class="btn btn-success"
+                  style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Ledger</a>
+                {% if user.role == "admin" %}
+                <form method="post" action="/transporters/delete/{{ t.id }}" style="margin: 0;">
+                  <button type="submit" class="btn btn-danger"
+                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem;"
+                    onclick="return confirm('Delete this transporter?')">Delete</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">No transporters found.</td>
+          </tr>
+          {% endfor %}
         </tbody>
-
-    </table>
+      </table>
+    </div>
+  </div>
 
 </div>
 

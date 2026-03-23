@@ -4,13 +4,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 
 
-
 from database.db import SessionLocal
 from database.models import User
 from utils.security import hash_password
 from config import ROLES
-
-
 
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -25,12 +22,10 @@ from routers import (
     transporter_router,
     trip_router,
     token_router,
-    report_router
+    report_router,
 )
 
-from utils.security import get_current_user
 from config import SECRET_KEY
-
 
 # ================================
 # APP INITIALIZATION
@@ -45,6 +40,7 @@ Base.metadata.create_all(bind=engine)
 # DEFAULT ADMIN SEEDER
 # ================================
 
+
 def create_default_admin():
     db: Session = SessionLocal()
 
@@ -55,13 +51,13 @@ def create_default_admin():
             admin = User(
                 username="admin",
                 password=hash_password("admin123"),
-                role=ROLES["ADMIN"]
+                role=ROLES["MASTER_ADMIN"],
             )
             db.add(admin)
             db.commit()
-            print("✅ Default admin created")
+            print(" Default admin created")
         else:
-            print("ℹ️ Admin already exists")
+            print(" Admin already exists")
 
     finally:
         db.close()
@@ -71,9 +67,10 @@ def create_default_admin():
 # STARTUP EVENT
 # ================================
 
+
 @app.on_event("startup")
 def startup_event():
-    print("🚀 Starting Diesel ERP...")
+    print(" Starting Diesel ERP...")
 
     # Create tables
     Base.metadata.create_all(bind=engine)
@@ -86,10 +83,7 @@ def startup_event():
 # MIDDLEWARE (SESSIONS)
 # ================================
 
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=SECRET_KEY
-)
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
 # ================================
@@ -99,6 +93,15 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 403:
+        return templates.TemplateResponse("403.html", {"request": request}, status_code=403)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 # ================================
@@ -116,13 +119,12 @@ app.include_router(report_router.router)
 # DASHBOARD (HOME PAGE)
 # ================================
 
+
 @app.get("/")
-def dashboard(
-    request: Request,
-    db: Session = Depends(get_db)
-):
+def dashboard(request: Request, db: Session = Depends(get_db)):
     # Redirect if not logged in
-    if not request.session.get("user"):
+    user = request.session.get("user")
+    if not user:
         return RedirectResponse("/login")
 
     # Fetch metrics
@@ -134,22 +136,38 @@ def dashboard(
     total_pending = sum([t.remaining_balance for t in trips])
     total_diesel = sum([t.value for t in tokens])
 
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {
-            "request": request,
-            "transporters": transporters_count,
-            "pending": total_pending,
-            "diesel": total_diesel,
-            "trips": len(trips),
-            "user": request.session.get("user")
-        }
-    )
+    if user["role"] in [ROLES["MASTER_ADMIN"], ROLES["ADMIN"]]:
+        users = db.query(User).all()
+        return templates.TemplateResponse(
+            "master_admin_dashboard.html",
+            {
+                "request": request,
+                "transporters": transporters_count,
+                "pending": total_pending,
+                "diesel": total_diesel,
+                "trips": len(trips),
+                "users": users,
+                "user": user,
+            },
+        )
+    else:
+        return templates.TemplateResponse(
+            "dashboard.html",
+            {
+                "request": request,
+                "transporters": transporters_count,
+                "pending": total_pending,
+                "diesel": total_diesel,
+                "trips": len(trips),
+                "user": user,
+            },
+        )
 
 
 # ================================
 # HEALTH CHECK (OPTIONAL)
 # ================================
+
 
 @app.get("/health")
 def health():

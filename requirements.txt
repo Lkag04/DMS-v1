@@ -8,3 +8,4 @@ qrcode
 pillow
 python-jose[cryptography]
 itsdangerous
+sqlalchemy

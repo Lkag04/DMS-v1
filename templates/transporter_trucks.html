@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-6"> Trucks - {{ transporter.name }}</h1>
+
+<div class="card max-w-md">
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Vehicle Number</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for truck in trucks %}
+        <tr>
+          <td>#{{ truck.id }}</td>
+          <td style="font-weight: 500;">{{ truck.vehicle_number }}</td>
+          <td>
+            <a href="/trucks/{{ truck.id }}/trips" class="btn btn-primary"
+              style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">View Trips</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" class="text-center text-muted py-4">No trucks found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

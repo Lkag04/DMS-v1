@@ -2,96 +2,61 @@
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Transporter Ledger</h1>
-
-<!-- ============================= -->
-<!-- TRANSPORTER INFO -->
-<!-- ============================= -->
-
-{% if transporter %}
-
-<div class="bg-white p-6 rounded shadow mb-6 max-w-xl">
-
-    <h2 class="text-lg font-semibold mb-4">Transporter Details</h2>
-
-    <p><strong>Name:</strong> {{ transporter.name }}</p>
-    <p><strong>Phone:</strong> {{ transporter.phone }}</p>
-
-    <p class="mt-2 font-bold text-blue-600">
-        Current Balance: ₹{{ transporter.balance }}
-    </p>
-
+<div class="flex items-center justify-between mb-6">
+    <h1>Transporter Ledger</h1>
 </div>
 
+{% if transporter %}
+<div class="card mb-6 max-w-md" style="border-left: 4px solid var(--primary);">
+    <h2 class="mb-4">Transporter Details</h2>
+    <div style="display: grid; grid-template-columns: 80px 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+        <span class="text-muted">Name:</span> <strong>{{ transporter.name }}</strong>
+        <span class="text-muted">Phone:</span> <span>{{ transporter.phone }}</span>
+    </div>
+    <div style="font-size: 1.1rem;">
+        <span class="text-muted">Current Balance:</span>
+        <strong style="color: var(--primary);">₹{{ transporter.balance }}</strong>
+    </div>
+</div>
 {% endif %}
 
-
-<!-- ============================= -->
-<!-- LEDGER TABLE -->
-<!-- ============================= -->
-
-<div class="bg-white p-6 rounded shadow">
-
-    <h2 class="text-lg font-semibold mb-4">Ledger Entries</h2>
-
-    <table class="w-full border text-sm">
-
-        <thead class="bg-gray-200">
-            <tr>
-                <th class="p-2 border">Date</th>
-                <th class="p-2 border">Type</th>
-                <th class="p-2 border">Description</th>
-                <th class="p-2 border">Credit (+)</th>
-                <th class="p-2 border">Debit (-)</th>
-                <th class="p-2 border">Balance</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            {% for row in ledger %}
-
-            <tr class="text-center">
-
-                <td class="p-2 border">
-                    {{ row.date }}
-                </td>
-
-                <td class="p-2 border">
-                    {{ row.type }}
-                </td>
-
-                <td class="p-2 border">
-                    {{ row.description }}
-                </td>
-
-                <!-- Credit -->
-                <td class="p-2 border text-green-600 font-bold">
-                    {% if row.amount > 0 %}
-                        ₹{{ row.amount }}
-                    {% endif %}
-                </td>
-
-                <!-- Debit -->
-                <td class="p-2 border text-red-600 font-bold">
-                    {% if row.amount < 0 %}
-                        ₹{{ row.amount }}
-                    {% endif %}
-                </td>
-
-                <!-- Running Balance -->
-                <td class="p-2 border font-bold text-blue-600">
-                    ₹{{ row.balance }}
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
+<div class="card">
+    <h2 class="mb-4">Ledger Entries</h2>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Credit (+)</th>
+                    <th>Debit (-)</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in ledger %}
+                <tr>
+                    <td>{{ row.date }}</td>
+                    <td><span class="badge badge-blue">{{ row.type }}</span></td>
+                    <td>{{ row.description }}</td>
+                    <td class="text-success" style="font-weight: bold;">
+                        {% if row.amount > 0 %}₹{{ row.amount }}{% endif %}
+                    </td>
+                    <td class="text-danger" style="font-weight: bold;">
+                        {% if row.amount < 0 %}₹{{ row.amount }}{% endif %} </td>
+                    <td style="font-weight: bold; color: var(--primary);">
+                        ₹{{ row.balance }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No ledger entries.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

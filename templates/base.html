@@ -1,74 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Diesel ERP</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="view-transition" content="same-origin" />
+  <title>Diesel ERP</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+  <!-- Custom Premium CSS -->
+  <link href="/static/css/style.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100">
+<body>
 
-    <!-- ============================= -->
-    <!-- NAVBAR -->
-    <!-- ============================= -->
-
-    <nav class="bg-gray-800 p-4 text-white flex justify-between items-center">
-
-        <div class="flex gap-6">
-
-            <a href="/" class="font-bold text-lg">Diesel ERP</a>
-
-            <a href="/" class="hover:text-gray-300">Dashboard</a>
-
-            <a href="/transporters" class="hover:text-gray-300">Transporters</a>
-
-            <a href="/trips" class="hover:text-gray-300">Trips</a>
-
-            <a href="/tokens/redeem" class="hover:text-gray-300">Redeem</a>
-
-            <a href="/reports" class="hover:text-gray-300">Reports</a>
-
-        </div>
-
-        <!-- Right Side -->
-        <div class="flex gap-4 items-center">
-
-            {% if user %}
-
-                <span class="text-sm">
-                    {{ user.username }} ({{ user.role }})
-                </span>
-
-                <a href="/logout" class="bg-red-500 px-3 py-1 rounded hover:bg-red-600">
-                    Logout
-                </a>
-
-            {% else %}
-
-                <a href="/login" class="bg-blue-500 px-3 py-1 rounded hover:bg-blue-600">
-                    Login
-                </a>
-
-            {% endif %}
-
-        </div>
-
-    </nav>
-
-    <!-- ============================= -->
-    <!-- MAIN CONTENT -->
-    <!-- ============================= -->
-
-    <div class="p-6">
-
-        {% block content %}{% endblock %}
-
+  <!-- ============================= -->
+  <!-- NAVBAR -->
+  <!-- ============================= -->
+  <nav class="navbar">
+    <div class="nav-links">
+      <a href="/" class="nav-brand">Diesel ERP</a>
+      <a href="/">Dashboard</a>
+      <a href="/transporters">Transporters</a>
+      <a href="/trips">Trips</a>
+      <a href="/tokens/redeem">Redeem</a>
+      <a href="/reports">Reports</a>
     </div>
 
+    <!-- Right Side -->
+    <div class="flex items-center gap-4">
+      <!-- Theme Toggle -->
+      <button id="theme-toggle" class="btn btn-secondary"
+        style="border-radius: 50%; padding: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
+        title="Toggle Light/Dark Theme">
+        <span id="theme-icon"></span>
+      </button>
+
+      {% if user %}
+      <span class="text-muted">
+        {{ user.username }} ({{ user.role }})
+      </span>
+      <a href="/logout" class="btn btn-danger">
+        Logout
+      </a>
+      {% else %}
+      <a href="/login" class="btn btn-primary">
+        Login
+      </a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ============================= -->
+  <!-- MAIN CONTENT -->
+  <!-- ============================= -->
+  <main class="container page-transition">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const html = document.documentElement;
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+      html.setAttribute('data-theme', 'light');
+      themeIcon.textContent = '';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      if (html.getAttribute('data-theme') === 'light') {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+        themeIcon.textContent = '';
+      } else {
+        html.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+        themeIcon.textContent = '';
+      }
+    });
+  </script>
 </body>
+
 </html>

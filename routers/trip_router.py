@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from database.db import get_db
-from database.models import Trip, Transporter
+from database.models import Trip, Transporter, Truck
 
 from services.balance_service import add_freight
 
@@ -13,23 +13,21 @@ from utils.security import require_roles
 from config import ROLES
 
 router = APIRouter()
-
 templates = Jinja2Templates(directory="templates")
 
 
 # ================================
 # VIEW ALL TRIPS
 # ================================
-
 @router.get("/trips")
 def trip_list(
     request: Request,
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"], ROLES["FACTORY"], ROLES["ACCOUNTS"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["FACTORY_EMP"]])),
 ):
-
     trips = db.query(Trip).all()
     transporters = db.query(Transporter).all()
+    trucks = db.query(Truck).all()
 
     return templates.TemplateResponse(
         "trips.html",
@@ -37,50 +35,57 @@ def trip_list(
             "request": request,
             "trips": trips,
             "transporters": transporters,
-            "user": user
-        }
+            "trucks": trucks,
+            "user": user,
+        },
     )
 
 
 # ================================
 # ADD TRIP (FREIGHT ENTRY)
 # ================================
-
 @router.post("/trips/add")
 def add_trip(
-    transporter_id: int = Form(...),
+    truck_id: int = Form(...),  # FIXED
     origin: str = Form(...),
     destination: str = Form(...),
+    material: str = Form(...),
+    qty_mt: float = Form(...),
+    driver_name: str = Form(...),
+    driver_number: str = Form(...),
     freight_amount: float = Form(...),
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"], ROLES["FACTORY"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["FACTORY_EMP"]])),
 ):
 
-    transporter = db.query(Transporter).get(transporter_id)
+    truck = db.query(Truck).get(truck_id)
 
-    if not transporter:
-        return {"error": "Transporter not found"}
+    if not truck:
+        return {"error": "Truck not found"}
+
+    transporter_id = truck.transporter_id  # derive properly
 
     # Create trip
     trip = Trip(
-        transporter_id=transporter_id,
+        truck_id=truck_id,  # FIXED
         origin=origin,
         destination=destination,
+        material=material,
+        qty_mt=qty_mt,
+        driver_name=driver_name,
+        driver_number=driver_number,
         freight_amount=freight_amount,
         remaining_balance=freight_amount,
-        status="open"
+        status="open",
     )
 
     db.add(trip)
     db.commit()
     db.refresh(trip)
 
-    # Add freight to balance (ledger entry)
+    # Ledger entry
     add_freight(
-        db,
-        transporter_id=transporter_id,
-        trip_id=trip.id,
-        amount=freight_amount
+        db, transporter_id=transporter_id, trip_id=trip.id, amount=freight_amount
     )
 
     return RedirectResponse("/trips", status_code=302)
@@ -89,13 +94,12 @@ def add_trip(
 # ================================
 # VIEW SINGLE TRIP
 # ================================
-
 @router.get("/trips/{trip_id}")
 def trip_detail(
     trip_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"], ROLES["FACTORY"], ROLES["ACCOUNTS"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["FACTORY_EMP"]])),
 ):
 
     trip = db.query(Trip).get(trip_id)
@@ -103,28 +107,22 @@ def trip_detail(
     if not trip:
         return {"error": "Trip not found"}
 
-    transporter = db.query(Transporter).get(trip.transporter_id)
+    transporter = trip.truck.transporter  # FIXED (no direct FK)
 
     return templates.TemplateResponse(
         "trip_detail.html",
-        {
-            "request": request,
-            "trip": trip,
-            "transporter": transporter,
-            "user": user
-        }
+        {"request": request, "trip": trip, "transporter": transporter, "user": user},
     )
 
 
 # ================================
 # DELETE TRIP (ADMIN ONLY)
 # ================================
-
 @router.get("/trips/delete/{trip_id}")
 def delete_trip(
     trip_id: int,
     db: Session = Depends(get_db),
-    user=Depends(require_roles([ROLES["ADMIN"]]))
+    user=Depends(require_roles([ROLES["MASTER_ADMIN"], ROLES["FACTORY_EMP"]])),
 ):
 
     trip = db.query(Trip).get(trip_id)
